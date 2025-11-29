@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Braylyn 'Resko' Stewart - Visual Architect. From 500 S 18th St to Art Basel. Louisville graffiti artist and muralist.">
+    <title>RESKO_CMA | Visual Architect</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: "Studio Floor" 
+         Base: Textured White (#f5f5f4) mimicking a painter's drop cloth.
+         Accents: "Safety" Orange (#fb923c), "Spray" Cyan (#22d3ee), "Neon" Pink (#e879f9).
+         Text: "Ink" Black (#171717) & "Pencil" Gray (#525252).
+    -->
+
+    <style>
+        /* Fonts: 'Permanent Marker' (Tags) & 'Space Grotesk' (Modern Structure) */
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Grotesk:wght@300;500;700&display=swap');
+
+        :root {
+            --color-paint-pink: #e879f9;
+            --color-paint-cyan: #22d3ee;
+            --color-paint-orange: #fb923c;
+            --cursor-size: 20px;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #f5f5f4;
+            color: #171717;
+            /* Drop Cloth Texture: Noise + subtle stains */
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E"),
+                radial-gradient(circle at 15% 50%, rgba(34,211,238,0.05) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(232,121,249,0.05) 0%, transparent 25%);
+            cursor: crosshair;
+            overflow-x: hidden;
+        }
+
+        .font-tag {
+            font-family: 'Permanent Marker', cursive;
+        }
+
+        /* --- CUSTOM CURSOR (The Spray Cap) --- */
+        #custom-cursor {
+            width: var(--cursor-size);
+            height: var(--cursor-size);
+            border: 2px solid #000;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Fallback for browsers that don't support mix-blend-mode */
+        @supports (mix-blend-mode: difference) {
+            #custom-cursor {
+                mix-blend-mode: difference;
+            }
+        }
+        
+        #custom-cursor.hovering {
+            width: 50px;
+            height: 50px;
+            background: rgba(34,211,238,0.2);
+            border-color: var(--color-paint-cyan);
+        }
+
+        /* --- INTERACTIVE PAINT SPLATTERS --- */
+        .splatter {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: splat 0.4s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 0;
+            opacity: 0.6;
+        }
+        @keyframes splat {
+            to { transform: scale(1); }
+        }
+
+        /* --- UI ELEMENTS --- */
+        
+        /* "Sticker" Navigation */
+        .nav-sticker {
+            background: #171717;
+            color: #fff;
+            transform: rotate(-2deg);
+            transition: transform 0.2s;
+            clip-path: polygon(0% 0%, 100% 0%, 98% 90%, 2% 100%);
+        }
+        .nav-sticker:hover {
+            transform: rotate(1deg) scale(1.1);
+            background: var(--color-paint-pink);
+            color: #000;
+        }
+        .nav-sticker:focus {
+            outline: 2px solid var(--color-paint-cyan);
+            outline-offset: 2px;
+        }
+
+        /* Project "Polaroid" Cards */
+        .project-card {
+            background: #fff;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            transform: rotate(var(--rotate));
+            border: 1px solid #e5e5e5;
+            position: relative;
+        }
+        .project-card::before {
+            /* "Tape" at top */
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%) rotate(var(--tape-rotate));
+            width: 80px;
+            height: 25px;
+            background: rgba(251, 146, 60, 0.4);
+            z-index: 10;
+        }
+        .project-card:hover {
+            transform: rotate(0deg) scale(1.05);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+            z-index: 20;
+            border-color: #000;
+        }
+
+        /* Timeline Blocks */
+        .timeline-block {
+            border-left: 4px solid #000;
+            padding-left: 2rem;
+            position: relative;
+        }
+        .timeline-block::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: #000;
+            border-radius: 50%;
+        }
+
+        /* Highlighters */
+        .highlight-cyan {
+            background: linear-gradient(120deg, rgba(34,211,238,0.4) 0%, rgba(34,211,238,0.1) 100%);
+            padding: 0 4px;
+        }
+        .highlight-pink {
+            background: linear-gradient(120deg, rgba(232,121,249,0.4) 0%, rgba(232,121,249,0.1) 100%);
+            padding: 0 4px;
+        }
+
+        /* Chart Containers - "Sketchbook" Style */
+        .chart-wrapper {
+            background: #fff;
+            border: 2px solid #1c1917;
+            padding: 1rem;
+            box-shadow: 8px 8px 0px #1c1917;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Cursor -->
+    <div id="custom-cursor" role="presentation" aria-hidden="true"></div>
+
+    <!-- Sticky Header -->
+    <nav class="fixed top-6 left-0 w-full z-50 pointer-events-none" role="navigation" aria-label="Main navigation">
+        <div class="max-w-7xl mx-auto px-6 flex justify-between items-start">
+            <!-- Logo -->
+            <div class="pointer-events-auto bg-white border-2 border-black p-3 shadow-[4px_4px_0px_#000] transform -rotate-3 hover:rotate-0 transition-transform cursor-pointer group">
+                <h1 class="font-tag text-3xl leading-none group-hover:text-cyan-600">RESKO<span class="text-xs font-sans block tracking-widest text-gray-500">_CMA</span></h1>
+            </div>
+
+            <!-- Nav Links -->
+            <div class="pointer-events-auto flex space-x-2 md:space-x-4">
+                <button onclick="scrollToSection('evolution')" class="nav-sticker px-3 py-2 font-bold uppercase text-xs md:text-sm" aria-label="Navigate to History section">History</button>
+                <button onclick="scrollToSection('works')" class="nav-sticker px-3 py-2 font-bold uppercase text-xs md:text-sm bg-gray-800" aria-label="Navigate to Archive section">Archive</button>
+                <button onclick="scrollToSection('dna')" class="nav-sticker px-3 py-2 font-bold uppercase text-xs md:text-sm bg-gray-800" aria-label="Navigate to Stats section">Stats</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="min-h-screen flex items-center justify-center relative pt-20 overflow-hidden">
+        <!-- Giant Background Text -->
+        <div class="absolute inset-0 flex items-center justify-center select-none pointer-events-none opacity-[0.04]" aria-hidden="true">
+            <span class="font-tag text-[15vw] leading-none text-center">LOUISVILLE<br>LEGEND</span>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+            <div>
+                <span class="font-mono text-sm text-cyan-600 mb-2 block font-bold tracking-widest">/// FROM 500 S 18TH ST TO ART BASEL</span>
+                <h2 class="text-5xl md:text-7xl font-bold leading-[0.9] mb-6 tracking-tight">
+                    THE <span class="font-tag text-pink-500 transform inline-block rotate-2">VISUAL</span><br>
+                    ARCHITECT
+                </h2>
+                <p class="text-lg text-gray-600 mb-8 max-w-md leading-relaxed">
+                    <strong>Braylyn "Resko" Stewart</strong>. 
+                    One of the few artists to paint the <span class="highlight-pink">Speed Art Museum</span> twice: once to destroy it (2012) and once to heal it (2023).
+                </p>
+                <div class="flex gap-4">
+                    <button onclick="scrollToSection('works')" class="bg-black text-white px-8 py-4 font-bold uppercase tracking-wider hover:bg-cyan-600 hover:shadow-[8px_8px_0px_rgba(0,0,0,0.2)] transition-all" aria-label="View Archive section">
+                        View Archive
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visual: The Stack -->
+            <div class="relative h-[500px] w-full flex items-center justify-center pointer-events-none hidden lg:flex" aria-hidden="true">
+                <div class="relative w-64 h-80 bg-white border-2 border-black transform rotate-6 shadow-xl p-4 z-10">
+                    <div class="w-full h-full bg-gray-900 flex items-center justify-center overflow-hidden relative">
+                         <div class="font-tag text-cyan-400 text-6xl opacity-50 rotate-[-15deg]">LOVE</div>
+                    </div>
+                    <div class="absolute bottom-2 right-2 font-mono text-xs bg-black text-white px-2">2016</div>
+                </div>
+                <div class="relative w-64 h-80 bg-white border-2 border-black transform -rotate-6 shadow-xl p-4 z-0 -ml-12 mt-12">
+                     <div class="w-full h-full bg-pink-100 flex items-center justify-center overflow-hidden relative">
+                        <div class="font-tag text-black text-6xl opacity-20">SPEED</div>
+                    </div>
+                     <div class="absolute bottom-2 right-2 font-mono text-xs bg-black text-white px-2">2023</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: EVOLUTION (Timeline) -->
+    <section id="evolution" class="py-24 bg-white border-y-4 border-black relative">
+        <div class="max-w-4xl mx-auto px-6">
+            <h3 class="font-tag text-5xl mb-16 text-center transform -rotate-1">The Trajectory</h3>
+            
+            <div class="space-y-12">
+                <!-- 2000s -->
+                <div class="timeline-block">
+                    <span class="absolute -left-[4.5rem] top-0 font-tag text-2xl text-gray-400">2000s</span>
+                    <h4 class="text-2xl font-bold mb-2">CMA Crew & The Basement</h4>
+                    <p class="text-gray-600">
+                        The roots. Painting alongside legendary NYC artist <strong>Sen-One</strong> at the defunct <span class="font-bold">Basement Skate Shop</span>. 
+                        Establishing the "Wildstyle" foundation in Louisville's underground.
+                    </p>
+                </div>
+
+                <!-- 2012: DEMOLITION -->
+                <div class="timeline-block">
+                    <span class="absolute -left-[4.5rem] top-0 font-tag text-2xl text-pink-500 transform -rotate-6">2012</span>
+                    <h4 class="text-2xl font-bold mb-2">The Demolition Party</h4>
+                    <p class="text-gray-600">
+                        <span class="bg-black text-white px-1 text-sm font-bold">SPEED MUSEUM CLOSING</span><br>
+                        Invited to graffiti the interior walls of the Speed Art Museum before the $60M renovation destroyed them. 
+                        <em>"It's going to accept more of graffiti into it,"</em> he predicted.
+                    </p>
+                </div>
+
+                <!-- 2016: LOVE + SPEED REOPENING -->
+                <div class="timeline-block">
+                    <span class="absolute -left-[4.5rem] top-0 font-tag text-2xl text-orange-500 transform rotate-2">2016</span>
+                    <h4 class="text-2xl font-bold mb-2">Museum Reopening & Community Love</h4>
+                    <p class="text-gray-600">
+                        <span class="bg-black text-white px-1 text-sm font-bold">SPEED MUSEUM REOPENS</span><br>
+                        The renovated Speed hosts "Out of the Box: The Rise of Sneaker Culture." Resko bridges street and fine art with live painting at After Hours events. 
+                        Meanwhile, his <em>"There's LOVE in LOuisVillE"</em> mural at <span class="font-bold">Sweet Peaches</span> becomes a West End landmark.
+                    </p>
+                </div>
+
+                <!-- 2020-2021: SOCIAL JUSTICE -->
+                <div class="timeline-block">
+                    <span class="absolute -left-[4.5rem] top-0 font-tag text-2xl text-cyan-500 transform -rotate-3">2020</span>
+                    <h4 class="text-2xl font-bold mb-2">The Memorial & The Restoration</h4>
+                    <p class="text-gray-600">
+                        <span class="bg-black text-white px-1 text-sm font-bold">11TH & MAIN</span><br>
+                        Creates massive mural honoring <strong>Breonna Taylor, David McAtee, and George Floyd</strong>. When vandalized by hate groups in 2021, 
+                        Resko camps out at the site to personally restore the defaced images. <em>"Until it gets put back to new... upon my word."</em>
+                    </p>
+                </div>
+
+                <!-- 2023: HOMECOMING -->
+                <div class="timeline-block">
+                    <span class="absolute -left-[4.5rem] top-0 font-tag text-2xl text-pink-500 transform rotate-3">2023</span>
+                    <h4 class="text-2xl font-bold mb-2">The Homecoming</h4>
+                    <p class="text-gray-600">
+                        <span class="bg-black text-white px-1 text-sm font-bold">SPEED MUSEUM RETURN</span><br>
+                        Returns to the museum for <em>"In the Garden"</em> exhibition. Paints "Homecoming" directly on gallery walls surrounding Amy Sherald's Breonna Taylor portrait—
+                        a sanctuary of flowers and butterflies. One of the rare times an artist altered the museum's walls.
+                    </p>
+                </div>
+
+                <!-- 2024: CURRENT -->
+                <div class="timeline-block">
+                    <span class="absolute -left-[4.5rem] top-0 font-tag text-2xl text-gray-400">2024</span>
+                    <h4 class="text-2xl font-bold mb-2">Derby & Wynwood</h4>
+                    <p class="text-gray-600">
+                        National recognition. "Graffiti Collection" sell-outs with <strong>The Hat Girls</strong> and mural work in Miami's <strong>Wynwood District</strong>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: SELECTED WORKS (The Archive) -->
+    <section id="works" class="py-24 relative bg-gray-50">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#000 2px, transparent 2px); background-size: 20px 20px;" aria-hidden="true"></div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16">
+                <div>
+                    <h3 class="font-tag text-6xl text-gray-900 leading-none">THE<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-pink-600">ARCHIVE</span></h3>
+                </div>
+                
+                <!-- Filters -->
+                <div class="flex flex-wrap gap-2 mt-8 md:mt-0" role="group" aria-label="Filter projects">
+                    <button onclick="filterWorks('all')" class="px-4 py-2 border-2 border-black bg-black text-white font-bold uppercase text-xs hover:bg-cyan-600 transition-colors" aria-label="Show all projects">All</button>
+                    <button onclick="filterWorks('museum')" class="px-4 py-2 border-2 border-black bg-transparent text-black font-bold uppercase text-xs hover:bg-black hover:text-white transition-colors" aria-label="Show museum projects only">Museum</button>
+                    <button onclick="filterWorks('justice')" class="px-4 py-2 border-2 border-black bg-transparent text-black font-bold uppercase text-xs hover:bg-black hover:text-white transition-colors" aria-label="Show social justice projects only">Justice</button>
+                    <button onclick="filterWorks('collab')" class="px-4 py-2 border-2 border-black bg-transparent text-black font-bold uppercase text-xs hover:bg-black hover:text-white transition-colors" aria-label="Show brand collaboration projects only">Brands</button>
+                    <button onclick="filterWorks('mural')" class="px-4 py-2 border-2 border-black bg-transparent text-black font-bold uppercase text-xs hover:bg-black hover:text-white transition-colors" aria-label="Show street mural projects only">Street</button>
+                </div>
+            </div>
+
+            <!-- Masonry Layout -->
+            <div id="project-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
+                <!-- JS Injected Cards -->
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: DATA & DNA -->
+    <section id="dna" class="py-24 bg-gray-900 text-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 relative z-10">
+            <!-- Impact Stats -->
+            <div>
+                <h3 class="font-tag text-4xl text-cyan-400 mb-8">Audience Reach</h3>
+                <div class="chart-wrapper bg-gray-800 border-gray-700">
+                    <div class="chart-container">
+                        <canvas id="impactChart" role="img" aria-label="Bar chart showing visual impressions across different venues"></canvas>
+                    </div>
+                </div>
+                <div class="mt-6 p-4 border border-gray-700 bg-gray-800 rounded">
+                    <h4 class="font-bold text-pink-500 mb-1">KEY METRIC:</h4>
+                    <p class="text-sm text-gray-400">
+                        Resko's work bridges the <span class="text-white">50k+ daily commuters</span> passing his murals and the <span class="text-white">exclusive clientele</span> of the Kentucky Derby.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Style DNA Radar -->
+            <div>
+                <h3 class="font-tag text-4xl text-pink-500 mb-8 text-right">Style Evolution</h3>
+                <div class="bg-white p-2 transform rotate-1 shadow-[10px_10px_0px_#e879f9]">
+                    <div class="chart-container bg-white">
+                        <canvas id="radarChart" role="img" aria-label="Radar chart comparing early era versus current era style metrics"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section class="py-24 bg-white border-t-4 border-black relative overflow-hidden">
+        <!-- Background spray can pattern -->
+        <div class="absolute inset-0 opacity-[0.02]" style="background-image: radial-gradient(circle, #000 1px, transparent 1px); background-size: 30px 30px;" aria-hidden="true"></div>
+        
+        <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
+            <h3 class="font-tag text-5xl md:text-6xl mb-6 transform -rotate-1">LET'S CREATE<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-pink-500 to-orange-500">SOMETHING</span></h3>
+            <p class="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+                Looking for a custom mural, live art performance, or collaboration? 
+                From corporate commissions to community projects, let's bring your vision to life.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <!-- Instagram Link -->
+                <a href="https://www.instagram.com/resko_cma" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="group bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white px-8 py-4 font-bold uppercase tracking-wider hover:shadow-[8px_8px_0px_rgba(0,0,0,0.2)] transition-all transform hover:-rotate-1 flex items-center gap-2"
+                   aria-label="Follow Resko on Instagram">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                    @RESKO_CMA
+                </a>
+                
+                <!-- Commission Request Button -->
+                <a href="mailto:commissions@resko-cma.com?subject=Commission%20Request" 
+                   class="bg-black text-white px-8 py-4 font-bold uppercase tracking-wider hover:bg-cyan-600 hover:shadow-[8px_8px_0px_rgba(0,0,0,0.2)] transition-all transform hover:rotate-1"
+                   aria-label="Request a commission or live event">
+                    Request Commission
+                </a>
+            </div>
+            
+            <p class="mt-8 text-sm text-gray-500 font-mono">
+                MURALS • LIVE EVENTS • BRAND COLLABORATIONS • GALLERY WORK
+            </p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
+            <div class="text-center md:text-left mb-6 md:mb-0">
+                <h2 class="font-tag text-4xl">RESKO<span class="text-gray-400">_CMA</span></h2>
+                <p class="font-mono text-sm text-gray-400">BASED ON RESEARCH DOCUMENTATION // 2025</p>
+            </div>
+            <div class="flex gap-6 font-bold text-sm tracking-widest text-gray-400">
+                <a href="#" class="hover:text-cyan-400 transition-colors" aria-label="Visit The Hat Girls">@THEHATGIRLS</a>
+                <a href="#" class="hover:text-cyan-400 transition-colors" aria-label="Visit Bulleit">@BULLEIT</a>
+                <a href="#" class="hover:text-cyan-400 transition-colors" aria-label="Visit Speed Art Museum">@SPEEDARTMUSEUM</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- CUSTOM CURSOR LOGIC ---
+        const cursor = document.getElementById('custom-cursor');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        document.querySelectorAll('a, button, .project-card').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+        });
+
+        // --- SPLATTER LOGIC (Improved with better event handling) ---
+        function createSplatter(e) {
+            // Don't create splatters on interactive elements
+            if (e.target.tagName === 'BUTTON' || 
+                e.target.tagName === 'A' || 
+                e.target.closest('button') ||
+                e.target.closest('a') ||
+                e.target.closest('.project-card')) {
+                return;
+            }
+
+            const colors = ['#22d3ee', '#e879f9', '#fb923c', '#171717'];
+            const size = Math.random() * 30 + 10;
+            const splat = document.createElement('div');
+            
+            splat.classList.add('splatter');
+            splat.style.width = `${size}px`;
+            splat.style.height = `${size}px`;
+            splat.style.background = colors[Math.floor(Math.random() * colors.length)];
+            splat.style.left = `${e.pageX - size/2}px`;
+            splat.style.top = `${e.pageY - size/2}px`;
+            splat.setAttribute('aria-hidden', 'true');
+            
+            const r1 = Math.random() * 100;
+            const r2 = Math.random() * 100;
+            splat.style.borderRadius = `${r1}% ${100-r1}% ${r2}% ${100-r2}% / ${r2}% ${r1}% ${100-r2}% ${100-r1}%`;
+
+            document.body.appendChild(splat);
+            setTimeout(() => splat.remove(), 2000);
+        }
+
+        // Add click listener to body
+        document.body.addEventListener('click', createSplatter);
+
+        // --- DETAILED PROJECT DATA ---
+        const projects = [
+            // SPEED MUSEUM TRILOGY
+            {
+                title: "DEMOLITION PARTY",
+                category: "museum",
+                year: "2012",
+                location: "Speed Art Museum",
+                tags: ["Historic", "Graffiti"],
+                desc: "Invited to tag the museum interior before the $60M renovation. A symbolic destruction of the 'white cube' to make way for the new.",
+                color: "border-gray-800",
+                rotate: "1.5deg",
+                tapeRotate: "-2deg"
+            },
+            {
+                title: "SHOE EXPOSITION",
+                category: "museum",
+                year: "2016",
+                location: "Speed Art Museum",
+                tags: ["Culture", "Live Art"],
+                desc: "Live art activations during 'Out of the Box: The Rise of Sneaker Culture' exhibition. Bridging street culture with the fine art world through energetic After Hours performances.",
+                color: "border-orange-500",
+                rotate: "-2deg",
+                tapeRotate: "1.5deg"
+            },
+            {
+                title: "HOMECOMING (SPEED)",
+                category: "museum",
+                year: "2023",
+                location: "Speed Art Museum",
+                tags: ["Exhibition", "Healing"],
+                desc: "Commissioned with Sara Noori to paint directly on gallery walls surrounding Amy Sherald's Breonna Taylor portrait. Created a sanctuary of flowers, greenery, and butterflies—a garden where Breonna could rest.",
+                color: "border-pink-500",
+                rotate: "-1.5deg",
+                tapeRotate: "2deg"
+            },
+            {
+                title: "AFTER HOURS LIVE",
+                category: "museum",
+                year: "Ongoing",
+                location: "Speed Art Museum",
+                tags: ["Live Art", "Performance"],
+                desc: "Regular live painting features in the Grand Hall during museum nights. Bringing street energy into the formal atrium setting.",
+                color: "border-purple-500",
+                rotate: "-1deg",
+                tapeRotate: "1deg"
+            },
+            // SOCIAL JUSTICE WORKS
+            {
+                title: "11TH & MAIN MEMORIAL",
+                category: "justice",
+                year: "2020",
+                location: "11th & Main Streets",
+                tags: ["Social Justice", "Iconic"],
+                desc: "Massive mural featuring Breonna Taylor, David McAtee, and George Floyd. When vandalized by hate groups in 2021, Resko personally led the restoration, camping out to repair the defaced images.",
+                color: "border-cyan-500",
+                rotate: "1.5deg",
+                tapeRotate: "-3deg"
+            },
+            // COLLABS
+            {
+                title: "THE HAT GIRLS",
+                category: "collab",
+                year: "Annual",
+                location: "Louisville, KY",
+                tags: ["Fashion", "Derby"],
+                desc: "Exclusive 'Graffiti Collection' for the Official Milliners of the Kentucky Derby. Custom aerosol-painted fascinators.",
+                color: "border-cyan-500",
+                rotate: "2deg",
+                tapeRotate: "-1deg"
+            },
+            {
+                title: "BULLEIT FRONTIER BUS",
+                category: "collab",
+                year: "2019",
+                location: "Shelbyville, KY",
+                tags: ["Corporate", "Mural"],
+                desc: "Commissioned to design and paint an eco-friendly, green-fuel powered bus for the Bulleit Visitor Experience Tour.",
+                color: "border-orange-500",
+                rotate: "-2deg",
+                tapeRotate: "3deg"
+            },
+            // MURALS
+            {
+                title: "LOVE IN LOUISVILLE",
+                category: "mural",
+                year: "2016",
+                location: "500 S 18th St",
+                tags: ["Civic", "Iconic"],
+                desc: "The iconic West End mural featuring a saxophonist and the text 'There's LOVE in LOuisVillE'.",
+                color: "border-yellow-500",
+                rotate: "1deg",
+                tapeRotate: "-2deg"
+            },
+            {
+                title: "WRITER'S BLOC",
+                category: "mural",
+                year: "2022",
+                location: "Shelby Park",
+                tags: ["Street Art", "Culture"],
+                desc: "A massive heart made of art supplies. Celebrating the 'writer' (graffiti artist) culture.",
+                color: "border-blue-500",
+                rotate: "-1deg",
+                tapeRotate: "1deg"
+            }
+        ];
+
+        function renderWorks(filter) {
+            const grid = document.getElementById('project-grid');
+            grid.innerHTML = '';
+            
+            const filtered = filter === 'all' ? projects : projects.filter(p => p.category === filter);
+
+            filtered.forEach((p, i) => {
+                const card = document.createElement('div');
+                card.className = 'project-card flex flex-col h-full cursor-pointer group';
+                card.style.setProperty('--rotate', p.rotate);
+                card.style.setProperty('--tape-rotate', p.tapeRotate);
+                card.classList.add(p.color.replace('border', 'border-l-4')); 
+                card.setAttribute('role', 'article');
+                card.setAttribute('aria-label', `${p.title} project from ${p.year}`);
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2 mt-2">
+                        <span class="font-mono text-xs font-bold text-gray-400 uppercase">${p.year} // ${p.location}</span>
+                    </div>
+                    <h4 class="font-tag text-2xl mb-2 leading-none group-hover:text-cyan-600 transition-colors uppercase">${p.title}</h4>
+                    <div class="flex flex-wrap gap-1 mb-3">
+                         ${p.tags.map(t => `<span class="bg-gray-100 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">${t}</span>`).join('')}
+                    </div>
+                    <p class="text-sm text-gray-600 leading-relaxed font-medium mb-4">${p.desc}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterWorks(cat) {
+            renderWorks(cat);
+        }
+
+        // --- CHARTS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderWorks('all');
+
+            // Impact Chart
+            new Chart(document.getElementById('impactChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Gallery Visitors', 'Festival Attendees', 'Commuters (Daily)'],
+                    datasets: [{
+                        label: 'Visual Impressions',
+                        data: [5000, 35000, 50000],
+                        backgroundColor: ['#e879f9', '#fb923c', '#22d3ee'],
+                        borderColor: '#171717',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        title: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            grid: { color: '#374151' }, 
+                            ticks: { color: '#9ca3af' }
+                        },
+                        x: { 
+                            grid: { display: false }, 
+                            ticks: { color: '#fff' }
+                        }
+                    }
+                }
+            });
+
+            // Radar Chart
+            new Chart(document.getElementById('radarChart'), {
+                type: 'radar',
+                data: {
+                    labels: ['Street Cred', 'Corporate Trust', 'Fine Art Skill', 'Community Impact', 'Scale'],
+                    datasets: [
+                        {
+                            label: 'Early Era',
+                            data: [95, 10, 30, 40, 50],
+                            borderColor: '#fb923c',
+                            backgroundColor: 'rgba(251, 146, 60, 0.2)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Current Era',
+                            data: [85, 90, 95, 100, 90],
+                            borderColor: '#22d3ee',
+                            backgroundColor: 'rgba(34, 211, 238, 0.2)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e5e5e5' },
+                            grid: { color: '#e5e5e5' },
+                            pointLabels: { 
+                                font: { size: 11, weight: 'bold' }, 
+                                color: '#000' 
+                            },
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: { 
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        });
+
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>
