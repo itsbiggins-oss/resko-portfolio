@@ -174,8 +174,8 @@ All content © Braylyn "Resko" Stewart. Website code may be used as reference.
 ## 👤 Contact
 
 - **Artist:** [@resko_cma](https://instagram.com/resko_cma)
-- **Site Development:** Christopher @ Fidelity Life
+- **Site Development:** Christopher @ Sick As Fuck LLC
 
 ---
 
-*Last updated: December 2024*
+*Last updated: December 2025*
