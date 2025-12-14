@@ -192,6 +192,157 @@
             height: 100%;
             border: none;
         }
+
+        /* --- MOBILE OPTIMIZATIONS --- */
+        
+        /* Hide custom cursor on touch devices */
+        @media (hover: none) and (pointer: coarse) {
+            #custom-cursor {
+                display: none !important;
+            }
+            body {
+                cursor: auto;
+            }
+        }
+
+        /* Timeline mobile adjustments */
+        @media (max-width: 640px) {
+            .timeline-block {
+                padding-left: 1.25rem;
+                margin-left: 0;
+            }
+            .timeline-block::before {
+                width: 14px;
+                height: 14px;
+                left: -9px;
+            }
+            .timeline-date-mobile {
+                position: relative !important;
+                left: auto !important;
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+        }
+        
+        @media (min-width: 641px) {
+            .timeline-date-desktop {
+                position: absolute;
+                left: -4.5rem;
+                top: 0;
+            }
+        }
+
+        /* Chart responsive heights */
+        @media (max-width: 640px) {
+            .chart-container {
+                height: 280px;
+            }
+        }
+
+        /* Ensure minimum touch targets (44x44px) */
+        @media (hover: none) and (pointer: coarse) {
+            .nav-sticker,
+            .filter-btn {
+                min-height: 44px;
+                min-width: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        /* Mobile hamburger menu */
+        .mobile-menu-btn {
+            display: none;
+        }
+        
+        @media (max-width: 640px) {
+            .mobile-menu-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 44px;
+                height: 44px;
+                background: #171717;
+                color: #fff;
+                border: none;
+            }
+            .desktop-nav {
+                display: none;
+            }
+            .desktop-nav.mobile-open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: #fff;
+                border: 2px solid #000;
+                box-shadow: 4px 4px 0px #000;
+                padding: 0.5rem;
+                gap: 0.5rem;
+                margin-top: 0.5rem;
+            }
+            .desktop-nav.mobile-open .nav-sticker {
+                width: 100%;
+                text-align: center;
+                padding: 0.75rem 1rem;
+            }
+        }
+        
+        @media (min-width: 641px) {
+            .desktop-nav {
+                display: flex !important;
+            }
+        }
+
+        /* Filter buttons horizontal scroll on mobile */
+        @media (max-width: 640px) {
+            .filter-scroll-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+                margin: 0 -1.5rem;
+                padding: 0 1.5rem;
+            }
+            .filter-scroll-container::-webkit-scrollbar {
+                display: none;
+            }
+            .filter-scroll-container > div {
+                flex-wrap: nowrap;
+            }
+        }
+
+        /* Reduce aggressive shadows on mobile to prevent clipping */
+        @media (max-width: 640px) {
+            .shadow-mobile-reduce {
+                box-shadow: 6px 6px 0px #171717 !important;
+            }
+        }
+
+        /* Project cards - disable rotation on mobile for cleaner look */
+        @media (max-width: 640px) {
+            .project-card {
+                transform: none !important;
+            }
+            .project-card:hover {
+                transform: none !important;
+            }
+            .project-card::before {
+                display: none;
+            }
+        }
+
+        /* Improve tap feedback */
+        @media (hover: none) and (pointer: coarse) {
+            .nav-sticker:active,
+            button:active,
+            a:active {
+                transform: scale(0.97);
+                opacity: 0.9;
+            }
+        }
     </style>
 </head>
 <body>
@@ -208,11 +359,24 @@
             </div>
 
             <!-- Nav Links -->
-            <div class="pointer-events-auto flex space-x-2 md:space-x-4">
-                <button onclick="scrollToSection('story')" class="nav-sticker px-3 py-2 font-bold uppercase text-xs md:text-sm" aria-label="Navigate to Story section">Story</button>
-                <button onclick="scrollToSection('evolution')" class="nav-sticker px-3 py-2 font-bold uppercase text-xs md:text-sm bg-gray-800" aria-label="Navigate to History section">History</button>
-                <button onclick="scrollToSection('works')" class="nav-sticker px-3 py-2 font-bold uppercase text-xs md:text-sm bg-gray-800" aria-label="Navigate to Archive section">Archive</button>
-                <button onclick="scrollToSection('dna')" class="nav-sticker px-3 py-2 font-bold uppercase text-xs md:text-sm bg-gray-800" aria-label="Navigate to Stats section">Stats</button>
+            <div class="pointer-events-auto flex items-center relative">
+                <!-- Mobile hamburger button -->
+                <button onclick="toggleMobileMenu()" class="mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" id="mobile-menu-btn">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="menu-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                    <svg class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" id="close-icon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                
+                <!-- Desktop nav / Mobile dropdown -->
+                <div class="desktop-nav space-x-2 md:space-x-4" id="nav-menu">
+                    <button onclick="scrollToSection('story'); closeMobileMenu()" class="nav-sticker px-3 py-2 font-bold uppercase text-xs md:text-sm" aria-label="Navigate to Story section">Story</button>
+                    <button onclick="scrollToSection('evolution'); closeMobileMenu()" class="nav-sticker px-3 py-2 font-bold uppercase text-xs md:text-sm bg-gray-800" aria-label="Navigate to History section">History</button>
+                    <button onclick="scrollToSection('works'); closeMobileMenu()" class="nav-sticker px-3 py-2 font-bold uppercase text-xs md:text-sm bg-gray-800" aria-label="Navigate to Archive section">Archive</button>
+                    <button onclick="scrollToSection('dna'); closeMobileMenu()" class="nav-sticker px-3 py-2 font-bold uppercase text-xs md:text-sm bg-gray-800" aria-label="Navigate to Stats section">Stats</button>
+                </div>
             </div>
         </div>
     </nav>
@@ -236,7 +400,7 @@
                     One of the few artists to paint the <span class="highlight-pink">Speed Art Museum</span> twice: once to destroy it (2012) and once to heal it (2023).
                 </p>
                 <div class="flex gap-4">
-                    <button onclick="scrollToSection('works')" class="bg-black text-white px-8 py-4 font-bold uppercase tracking-wider hover:bg-cyan-600 hover:shadow-[8px_8px_0px_rgba(0,0,0,0.2)] transition-all" aria-label="View Archive section">
+                    <button onclick="scrollToSection('works')" class="bg-black text-white px-6 py-3 sm:px-8 sm:py-4 font-bold uppercase tracking-wider hover:bg-cyan-600 hover:shadow-[8px_8px_0px_rgba(0,0,0,0.2)] transition-all min-h-[48px]" aria-label="View Archive section">
                         View Archive
                     </button>
                 </div>
@@ -261,15 +425,15 @@
     </section>
 
     <!-- SECTION: THE STORY (Video) -->
-    <section id="story" class="py-24 relative overflow-hidden">
+    <section id="story" class="py-16 sm:py-24 relative overflow-hidden">
         <!-- Subtle background pattern -->
         <div class="absolute inset-0 opacity-[0.02]" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 25px 25px;" aria-hidden="true"></div>
         
         <div class="max-w-5xl mx-auto px-6 relative z-10">
             <!-- Section Header -->
-            <div class="text-center mb-12">
-                <span class="font-mono text-sm text-cyan-600 mb-2 block font-bold tracking-widest">/// IN HIS OWN WORDS</span>
-                <h3 class="font-tag text-5xl md:text-6xl transform -rotate-1">THE <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-cyan-500">STORY</span></h3>
+            <div class="text-center mb-8 sm:mb-12">
+                <span class="font-mono text-xs sm:text-sm text-cyan-600 mb-2 block font-bold tracking-widest">/// IN HIS OWN WORDS</span>
+                <h3 class="font-tag text-4xl sm:text-5xl md:text-6xl transform sm:-rotate-1">THE <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-cyan-500">STORY</span></h3>
             </div>
             
             <!-- Video Container with Sketchbook Frame -->
@@ -279,7 +443,7 @@
                 <div class="absolute -top-3 right-12 w-16 h-6 bg-cyan-400/40 transform rotate-3 z-20" aria-hidden="true"></div>
                 
                 <!-- Video Frame -->
-                <div class="bg-white border-2 border-black p-3 md:p-4 shadow-[10px_10px_0px_#171717] transform rotate-1 hover:rotate-0 transition-transform duration-300">
+                <div class="bg-white border-2 border-black p-3 md:p-4 shadow-[6px_6px_0px_#171717] sm:shadow-[10px_10px_0px_#171717] transform sm:rotate-1 sm:hover:rotate-0 transition-transform duration-300">
                     <div class="video-wrapper">
                         <iframe 
                             src="https://drive.google.com/file/d/1mUGS24zZdF7iULJWgCfNB5M2n-b8dKyb/preview" 
@@ -304,16 +468,16 @@
     </section>
 
     <!-- SECTION: EVOLUTION (Timeline) -->
-    <section id="evolution" class="py-24 bg-white border-y-4 border-black relative">
-        <div class="max-w-4xl mx-auto px-6">
-            <h3 class="font-tag text-5xl mb-16 text-center transform -rotate-1">The Trajectory</h3>
+    <section id="evolution" class="py-16 sm:py-24 bg-white border-y-4 border-black relative">
+        <div class="max-w-4xl mx-auto px-6 sm:pl-24">
+            <h3 class="font-tag text-4xl sm:text-5xl mb-10 sm:mb-16 text-center transform sm:-rotate-1">The Trajectory</h3>
             
             <div class="space-y-12">
                 <!-- 2000s -->
                 <div class="timeline-block">
-                    <span class="absolute -left-[4.5rem] top-0 font-tag text-2xl text-gray-400">2000s</span>
-                    <h4 class="text-2xl font-bold mb-2">CMA Crew & The Basement</h4>
-                    <p class="text-gray-600">
+                    <span class="font-tag text-2xl text-gray-400 timeline-date-mobile sm:timeline-date-desktop sm:absolute sm:-left-[4.5rem] sm:top-0">2000s</span>
+                    <h4 class="text-xl sm:text-2xl font-bold mb-2">CMA Crew & The Basement</h4>
+                    <p class="text-gray-600 text-sm sm:text-base">
                         The roots. Painting alongside legendary NYC artist <strong>Sen-One</strong> at the defunct <span class="font-bold">Basement Skate Shop</span>. 
                         Establishing the "Wildstyle" foundation in Louisville's underground.
                     </p>
@@ -321,9 +485,9 @@
 
                 <!-- 2012: DEMOLITION -->
                 <div class="timeline-block">
-                    <span class="absolute -left-[4.5rem] top-0 font-tag text-2xl text-pink-500 transform -rotate-6">2012</span>
-                    <h4 class="text-2xl font-bold mb-2">The Demolition Party</h4>
-                    <p class="text-gray-600">
+                    <span class="font-tag text-2xl text-pink-500 sm:transform sm:-rotate-6 timeline-date-mobile sm:timeline-date-desktop sm:absolute sm:-left-[4.5rem] sm:top-0">2012</span>
+                    <h4 class="text-xl sm:text-2xl font-bold mb-2">The Demolition Party</h4>
+                    <p class="text-gray-600 text-sm sm:text-base">
                         <span class="bg-black text-white px-1 text-sm font-bold">SPEED MUSEUM CLOSING</span><br>
                         Invited to graffiti the interior walls of the Speed Art Museum before the $60M renovation destroyed them. 
                         <em>"It's going to accept more of graffiti into it,"</em> he predicted.
@@ -332,9 +496,9 @@
 
                 <!-- 2016: LOVE + SPEED REOPENING -->
                 <div class="timeline-block">
-                    <span class="absolute -left-[4.5rem] top-0 font-tag text-2xl text-orange-500 transform rotate-2">2016</span>
-                    <h4 class="text-2xl font-bold mb-2">Museum Reopening & Community Love</h4>
-                    <p class="text-gray-600">
+                    <span class="font-tag text-2xl text-orange-500 sm:transform sm:rotate-2 timeline-date-mobile sm:timeline-date-desktop sm:absolute sm:-left-[4.5rem] sm:top-0">2016</span>
+                    <h4 class="text-xl sm:text-2xl font-bold mb-2">Museum Reopening & Community Love</h4>
+                    <p class="text-gray-600 text-sm sm:text-base">
                         <span class="bg-black text-white px-1 text-sm font-bold">SPEED MUSEUM REOPENS</span><br>
                         The renovated Speed hosts "Out of the Box: The Rise of Sneaker Culture." Resko bridges street and fine art with live painting at After Hours events. 
                         Meanwhile, his <em>"There's LOVE in LOuisVillE"</em> mural at <span class="font-bold">Sweet Peaches</span> becomes a West End landmark.
@@ -343,9 +507,9 @@
 
                 <!-- 2020-2021: SOCIAL JUSTICE -->
                 <div class="timeline-block">
-                    <span class="absolute -left-[4.5rem] top-0 font-tag text-2xl text-cyan-500 transform -rotate-3">2020</span>
-                    <h4 class="text-2xl font-bold mb-2">The Memorial & The Restoration</h4>
-                    <p class="text-gray-600">
+                    <span class="font-tag text-2xl text-cyan-500 sm:transform sm:-rotate-3 timeline-date-mobile sm:timeline-date-desktop sm:absolute sm:-left-[4.5rem] sm:top-0">2020</span>
+                    <h4 class="text-xl sm:text-2xl font-bold mb-2">The Memorial & The Restoration</h4>
+                    <p class="text-gray-600 text-sm sm:text-base">
                         <span class="bg-black text-white px-1 text-sm font-bold">11TH & MAIN</span><br>
                         Creates massive mural honoring <strong>Breonna Taylor, David McAtee, and George Floyd</strong>. When vandalized by hate groups in 2021, 
                         Resko camps out at the site to personally restore the defaced images. <em>"Until it gets put back to new... upon my word."</em>
@@ -354,9 +518,9 @@
 
                 <!-- 2023: HOMECOMING -->
                 <div class="timeline-block">
-                    <span class="absolute -left-[4.5rem] top-0 font-tag text-2xl text-pink-500 transform rotate-3">2023</span>
-                    <h4 class="text-2xl font-bold mb-2">The Homecoming</h4>
-                    <p class="text-gray-600">
+                    <span class="font-tag text-2xl text-pink-500 sm:transform sm:rotate-3 timeline-date-mobile sm:timeline-date-desktop sm:absolute sm:-left-[4.5rem] sm:top-0">2023</span>
+                    <h4 class="text-xl sm:text-2xl font-bold mb-2">The Homecoming</h4>
+                    <p class="text-gray-600 text-sm sm:text-base">
                         <span class="bg-black text-white px-1 text-sm font-bold">SPEED MUSEUM RETURN</span><br>
                         Returns to the museum for <em>"In the Garden"</em> exhibition. Paints "Homecoming" directly on gallery walls surrounding Amy Sherald's Breonna Taylor portrait—
                         a sanctuary of flowers and butterflies. One of the rare times an artist altered the museum's walls.
@@ -365,9 +529,9 @@
 
                 <!-- 2024: CURRENT -->
                 <div class="timeline-block">
-                    <span class="absolute -left-[4.5rem] top-0 font-tag text-2xl text-gray-400">2024</span>
-                    <h4 class="text-2xl font-bold mb-2">Derby & Wynwood</h4>
-                    <p class="text-gray-600">
+                    <span class="font-tag text-2xl text-gray-400 timeline-date-mobile sm:timeline-date-desktop sm:absolute sm:-left-[4.5rem] sm:top-0">2024</span>
+                    <h4 class="text-xl sm:text-2xl font-bold mb-2">Derby & Wynwood</h4>
+                    <p class="text-gray-600 text-sm sm:text-base">
                         National recognition. "Graffiti Collection" sell-outs with <strong>The Hat Girls</strong> and mural work in Miami's <strong>Wynwood District</strong>.
                     </p>
                 </div>
@@ -376,40 +540,42 @@
     </section>
 
     <!-- SECTION: SELECTED WORKS (The Archive) -->
-    <section id="works" class="py-24 relative bg-gray-50">
+    <section id="works" class="py-16 sm:py-24 relative bg-gray-50">
         <!-- Background Pattern -->
         <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#000 2px, transparent 2px); background-size: 20px 20px;" aria-hidden="true"></div>
 
         <div class="max-w-7xl mx-auto px-6 relative z-10">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-16">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 md:mb-16">
                 <div>
-                    <h3 class="font-tag text-6xl text-gray-900 leading-none">THE<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-pink-600">ARCHIVE</span></h3>
+                    <h3 class="font-tag text-4xl sm:text-5xl md:text-6xl text-gray-900 leading-none">THE<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-pink-600">ARCHIVE</span></h3>
                 </div>
                 
-                <!-- Filters -->
-                <div class="flex flex-wrap gap-2 mt-8 md:mt-0" role="group" aria-label="Filter projects">
-                    <button onclick="filterWorks('all')" class="px-4 py-2 border-2 border-black bg-black text-white font-bold uppercase text-xs hover:bg-cyan-600 transition-colors" aria-label="Show all projects">All</button>
-                    <button onclick="filterWorks('museum')" class="px-4 py-2 border-2 border-black bg-transparent text-black font-bold uppercase text-xs hover:bg-black hover:text-white transition-colors" aria-label="Show museum projects only">Museum</button>
-                    <button onclick="filterWorks('justice')" class="px-4 py-2 border-2 border-black bg-transparent text-black font-bold uppercase text-xs hover:bg-black hover:text-white transition-colors" aria-label="Show social justice projects only">Justice</button>
-                    <button onclick="filterWorks('collab')" class="px-4 py-2 border-2 border-black bg-transparent text-black font-bold uppercase text-xs hover:bg-black hover:text-white transition-colors" aria-label="Show brand collaboration projects only">Brands</button>
-                    <button onclick="filterWorks('mural')" class="px-4 py-2 border-2 border-black bg-transparent text-black font-bold uppercase text-xs hover:bg-black hover:text-white transition-colors" aria-label="Show street mural projects only">Street</button>
+                <!-- Filters with horizontal scroll on mobile -->
+                <div class="filter-scroll-container w-full md:w-auto mt-6 md:mt-0">
+                    <div class="flex gap-2" role="group" aria-label="Filter projects">
+                        <button onclick="filterWorks('all')" class="filter-btn px-4 py-2 border-2 border-black bg-black text-white font-bold uppercase text-xs hover:bg-cyan-600 transition-colors whitespace-nowrap" aria-label="Show all projects">All</button>
+                        <button onclick="filterWorks('museum')" class="filter-btn px-4 py-2 border-2 border-black bg-transparent text-black font-bold uppercase text-xs hover:bg-black hover:text-white transition-colors whitespace-nowrap" aria-label="Show museum projects only">Museum</button>
+                        <button onclick="filterWorks('justice')" class="filter-btn px-4 py-2 border-2 border-black bg-transparent text-black font-bold uppercase text-xs hover:bg-black hover:text-white transition-colors whitespace-nowrap" aria-label="Show social justice projects only">Justice</button>
+                        <button onclick="filterWorks('collab')" class="filter-btn px-4 py-2 border-2 border-black bg-transparent text-black font-bold uppercase text-xs hover:bg-black hover:text-white transition-colors whitespace-nowrap" aria-label="Show brand collaboration projects only">Brands</button>
+                        <button onclick="filterWorks('mural')" class="filter-btn px-4 py-2 border-2 border-black bg-transparent text-black font-bold uppercase text-xs hover:bg-black hover:text-white transition-colors whitespace-nowrap" aria-label="Show street mural projects only">Street</button>
+                    </div>
                 </div>
             </div>
 
             <!-- Masonry Layout -->
-            <div id="project-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
+            <div id="project-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 px-2 md:p-4">
                 <!-- JS Injected Cards -->
             </div>
         </div>
     </section>
 
     <!-- SECTION: DATA & DNA -->
-    <section id="dna" class="py-24 bg-gray-900 text-white relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 relative z-10">
+    <section id="dna" class="py-16 sm:py-24 bg-gray-900 text-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 relative z-10">
             <!-- Impact Stats -->
             <div>
-                <h3 class="font-tag text-4xl text-cyan-400 mb-8">Audience Reach</h3>
-                <div class="chart-wrapper bg-gray-800 border-gray-700">
+                <h3 class="font-tag text-3xl sm:text-4xl text-cyan-400 mb-6 sm:mb-8">Audience Reach</h3>
+                <div class="chart-wrapper bg-gray-800 border-gray-700 shadow-[4px_4px_0px_#1c1917] sm:shadow-[8px_8px_0px_#1c1917]">
                     <div class="chart-container">
                         <canvas id="impactChart" role="img" aria-label="Bar chart showing visual impressions across different venues"></canvas>
                     </div>
@@ -424,8 +590,8 @@
 
             <!-- Style DNA Radar -->
             <div>
-                <h3 class="font-tag text-4xl text-pink-500 mb-8 text-right">Style Evolution</h3>
-                <div class="bg-white p-2 transform rotate-1 shadow-[10px_10px_0px_#e879f9]">
+                <h3 class="font-tag text-3xl sm:text-4xl text-pink-500 mb-6 sm:mb-8 text-left lg:text-right">Style Evolution</h3>
+                <div class="bg-white p-2 sm:transform sm:rotate-1 shadow-[4px_4px_0px_#e879f9] sm:shadow-[10px_10px_0px_#e879f9]">
                     <div class="chart-container bg-white">
                         <canvas id="radarChart" role="img" aria-label="Radar chart comparing early era versus current era style metrics"></canvas>
                     </div>
@@ -435,13 +601,13 @@
     </section>
 
     <!-- CONTACT SECTION -->
-    <section class="py-24 bg-white border-t-4 border-black relative overflow-hidden">
+    <section class="py-16 sm:py-24 bg-white border-t-4 border-black relative overflow-hidden">
         <!-- Background spray can pattern -->
         <div class="absolute inset-0 opacity-[0.02]" style="background-image: radial-gradient(circle, #000 1px, transparent 1px); background-size: 30px 30px;" aria-hidden="true"></div>
         
         <div class="max-w-4xl mx-auto px-6 text-center relative z-10">
-            <h3 class="font-tag text-5xl md:text-6xl mb-6 transform -rotate-1">LET'S CREATE<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-pink-500 to-orange-500">SOMETHING</span></h3>
-            <p class="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
+            <h3 class="font-tag text-4xl sm:text-5xl md:text-6xl mb-6 transform sm:-rotate-1">LET'S CREATE<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-pink-500 to-orange-500">SOMETHING</span></h3>
+            <p class="text-base sm:text-lg text-gray-600 mb-8 sm:mb-12 max-w-2xl mx-auto">
                 Looking for a custom mural, live art performance, or collaboration? 
                 From corporate commissions to community projects, let's bring your vision to life.
             </p>
@@ -451,7 +617,7 @@
                 <a href="https://www.instagram.com/resko_cma" 
                    target="_blank" 
                    rel="noopener noreferrer"
-                   class="group bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white px-8 py-4 font-bold uppercase tracking-wider hover:shadow-[8px_8px_0px_rgba(0,0,0,0.2)] transition-all transform hover:-rotate-1 flex items-center gap-2"
+                   class="group bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white px-6 py-3 sm:px-8 sm:py-4 font-bold uppercase tracking-wider hover:shadow-[8px_8px_0px_rgba(0,0,0,0.2)] transition-all transform hover:-rotate-1 flex items-center justify-center gap-2 min-h-[48px] w-full sm:w-auto"
                    aria-label="Follow Resko on Instagram">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
@@ -460,11 +626,12 @@
                 </a>
                 
                 <!-- Commission Request Button -->
-                <a href="mailto:commissions@resko-cma.com?subject=Commission%20Request" 
-                   class="bg-black text-white px-8 py-4 font-bold uppercase tracking-wider hover:bg-cyan-600 hover:shadow-[8px_8px_0px_rgba(0,0,0,0.2)] transition-all transform hover:rotate-1"
+                <button 
+                   onclick="openModal()"
+                   class="bg-black text-white px-6 py-3 sm:px-8 sm:py-4 font-bold uppercase tracking-wider hover:bg-cyan-600 hover:shadow-[8px_8px_0px_rgba(0,0,0,0.2)] transition-all transform hover:rotate-1 min-h-[48px] w-full sm:w-auto"
                    aria-label="Request a commission or live event">
                     Request Commission
-                </a>
+                </button>
             </div>
             
             <p class="mt-8 text-sm text-gray-500 font-mono">
@@ -472,6 +639,58 @@
             </p>
         </div>
     </section>
+
+    <!-- COMMISSION MODAL -->
+    <div id="commission-modal" class="fixed inset-0 z-[100] hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300" id="modal-backdrop"></div>
+        
+        <!-- Modal Container -->
+        <div class="absolute inset-0 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-0 sm:p-4">
+                <!-- Modal Content - Full screen on mobile -->
+                <div id="modal-content" class="relative bg-white sm:border-2 sm:border-black sm:shadow-[12px_12px_0px_#171717] w-full h-full sm:h-auto sm:max-w-2xl transform scale-95 opacity-0 transition-all duration-300 origin-center sm:rounded-none">
+                    <!-- Header -->
+                    <div class="sticky top-0 bg-white border-b-2 border-black p-4 flex justify-between items-center z-10">
+                        <div>
+                            <span class="font-mono text-xs text-cyan-600 font-bold tracking-widest block">/// NEW PROJECT</span>
+                            <h4 id="modal-title" class="font-tag text-2xl md:text-3xl">LET'S <span class="text-pink-500">CREATE</span></h4>
+                        </div>
+                        <button 
+                            onclick="closeModal()" 
+                            class="w-11 h-11 min-w-[44px] min-h-[44px] bg-black text-white flex items-center justify-center hover:bg-pink-500 transition-colors group"
+                            aria-label="Close commission form">
+                            <svg class="w-6 h-6 transform group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Form Container -->
+                    <div class="p-2 md:p-4">
+                        <div class="w-full" style="height: calc(100vh - 180px); min-height: 400px; max-height: 800px;">
+                            <iframe 
+                                src="https://docs.google.com/forms/d/e/1FAIpQLSdAjjbqaNo7X6YwvPBWSPShrQq1eXA8vrOMpKr7DIekNB_0AQ/viewform?embedded=true" 
+                                width="100%" 
+                                height="100%" 
+                                frameborder="0" 
+                                marginheight="0" 
+                                marginwidth="0"
+                                title="Commission Request Form"
+                                loading="lazy">
+                                Loading…
+                            </iframe>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer hint -->
+                    <div class="border-t-2 border-black p-3 bg-gray-50 text-center">
+                        <p class="text-xs text-gray-500 font-mono">TYPICAL RESPONSE TIME: 24-48 HOURS</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- FOOTER -->
     <footer class="bg-gray-900 text-white py-12">
@@ -489,21 +708,29 @@
     </footer>
 
     <script>
-        // --- CUSTOM CURSOR LOGIC ---
+        // --- TOUCH DEVICE DETECTION ---
+        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+        // --- CUSTOM CURSOR LOGIC (Skip on touch devices) ---
         const cursor = document.getElementById('custom-cursor');
         
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-        });
+        if (!isTouchDevice) {
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
 
-        document.querySelectorAll('a, button, .project-card').forEach(el => {
-            el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
-            el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
-        });
+            document.querySelectorAll('a, button, .project-card').forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+            });
+        }
 
-        // --- SPLATTER LOGIC (Improved with better event handling) ---
+        // --- SPLATTER LOGIC (Disabled on touch devices) ---
         function createSplatter(e) {
+            // Skip on touch devices
+            if (isTouchDevice) return;
+            
             // Don't create splatters on interactive elements
             if (e.target.tagName === 'BUTTON' || 
                 e.target.tagName === 'A' || 
@@ -537,6 +764,38 @@
 
         // Add click listener to body
         document.body.addEventListener('click', createSplatter);
+
+        // --- MOBILE MENU LOGIC ---
+        const navMenu = document.getElementById('nav-menu');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const menuIcon = document.getElementById('menu-icon');
+        const closeIcon = document.getElementById('close-icon');
+        
+        function toggleMobileMenu() {
+            const isOpen = navMenu.classList.contains('mobile-open');
+            if (isOpen) {
+                closeMobileMenu();
+            } else {
+                navMenu.classList.add('mobile-open');
+                menuIcon.classList.add('hidden');
+                closeIcon.classList.remove('hidden');
+                mobileMenuBtn.setAttribute('aria-expanded', 'true');
+            }
+        }
+        
+        function closeMobileMenu() {
+            navMenu.classList.remove('mobile-open');
+            menuIcon.classList.remove('hidden');
+            closeIcon.classList.add('hidden');
+            mobileMenuBtn.setAttribute('aria-expanded', 'false');
+        }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#nav-menu') && !e.target.closest('#mobile-menu-btn')) {
+                closeMobileMenu();
+            }
+        });
 
         // --- DETAILED PROJECT DATA ---
         const projects = [
@@ -766,6 +1025,56 @@
                 element.scrollIntoView({ behavior: 'smooth' });
             }
         }
+
+        // --- MODAL LOGIC ---
+        const modal = document.getElementById('commission-modal');
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const modalContent = document.getElementById('modal-content');
+        
+        function openModal() {
+            // Show modal container
+            modal.classList.remove('hidden');
+            
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+            
+            // Trigger animations after a brief delay (allows display change to register)
+            requestAnimationFrame(() => {
+                modalBackdrop.classList.remove('opacity-0');
+                modalBackdrop.classList.add('opacity-100');
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            });
+        }
+        
+        function closeModal() {
+            // Reverse animations
+            modalBackdrop.classList.remove('opacity-100');
+            modalBackdrop.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            // Hide modal after animation completes
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+        
+        // Close on backdrop click
+        modalBackdrop.addEventListener('click', closeModal);
+        
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+        
+        // Prevent clicks inside modal content from closing
+        modalContent.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
     </script>
 </body>
 </html>
