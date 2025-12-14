@@ -1,0 +1,12 @@
+# robots.txt for reskocma.art
+# https://www.robotstxt.org/
+
+# Allow all crawlers access to all content
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://reskocma.art/sitemap.xml
+
+# Crawl-delay (optional, helps prevent server overload)
+# Crawl-delay: 10
