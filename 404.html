@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>404 - Page Not Found | RESKO_CMA</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Grotesk:wght@300;500;700&display=swap');
+
+        :root {
+            --color-paint-pink: #e879f9;
+            --color-paint-cyan: #22d3ee;
+            --color-paint-orange: #fb923c;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #f5f5f4;
+            color: #171717;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E"),
+                radial-gradient(circle at 15% 50%, rgba(34,211,238,0.05) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(232,121,249,0.05) 0%, transparent 25%);
+        }
+
+        .font-tag {
+            font-family: 'Permanent Marker', cursive;
+        }
+
+        /* Dripping paint effect */
+        .drip {
+            position: absolute;
+            width: 20px;
+            background: var(--color-paint-cyan);
+            border-radius: 0 0 50% 50%;
+            animation: drip 2s ease-in infinite;
+        }
+
+        @keyframes drip {
+            0% { height: 0; opacity: 1; }
+            70% { height: 80px; opacity: 1; }
+            100% { height: 100px; opacity: 0; }
+        }
+
+        .drip:nth-child(1) { left: 20%; animation-delay: 0s; background: var(--color-paint-pink); }
+        .drip:nth-child(2) { left: 35%; animation-delay: 0.5s; background: var(--color-paint-cyan); }
+        .drip:nth-child(3) { left: 50%; animation-delay: 1s; background: var(--color-paint-orange); }
+        .drip:nth-child(4) { left: 65%; animation-delay: 0.3s; background: var(--color-paint-pink); }
+        .drip:nth-child(5) { left: 80%; animation-delay: 0.8s; background: var(--color-paint-cyan); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Dripping paint from top -->
+    <div class="fixed top-0 left-0 w-full h-32 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div class="drip"></div>
+        <div class="drip"></div>
+        <div class="drip"></div>
+        <div class="drip"></div>
+        <div class="drip"></div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center px-6 py-12">
+        <div class="text-center max-w-2xl">
+            <!-- 404 Number -->
+            <div class="relative inline-block mb-8">
+                <span class="font-tag text-[120px] sm:text-[180px] md:text-[220px] leading-none text-transparent bg-clip-text bg-gradient-to-br from-cyan-500 via-pink-500 to-orange-500 select-none">
+                    404
+                </span>
+                <!-- Strike through effect -->
+                <div class="absolute top-1/2 left-0 w-full h-3 sm:h-4 bg-black transform -rotate-6" aria-hidden="true"></div>
+            </div>
+
+            <!-- Message -->
+            <h1 class="font-tag text-3xl sm:text-4xl md:text-5xl mb-4 transform -rotate-1">
+                WRONG <span class="text-pink-500">WALL</span>
+            </h1>
+            <p class="text-lg text-gray-600 mb-8 max-w-md mx-auto">
+                Looks like this piece got buffed. The page you're looking for doesn't exist or has been moved.
+            </p>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="/" 
+                   class="bg-black text-white px-8 py-4 font-bold uppercase tracking-wider hover:bg-cyan-600 hover:shadow-[8px_8px_0px_rgba(0,0,0,0.2)] transition-all min-h-[48px] w-full sm:w-auto text-center">
+                    Back to Gallery
+                </a>
+                <a href="/#works" 
+                   class="border-2 border-black text-black px-8 py-4 font-bold uppercase tracking-wider hover:bg-black hover:text-white transition-all min-h-[48px] w-full sm:w-auto text-center">
+                    View Archive
+                </a>
+            </div>
+
+            <!-- Fun detail -->
+            <p class="mt-12 text-sm text-gray-400 font-mono">
+                ERROR CODE: WALL_NOT_FOUND // TRY ANOTHER SPOT
+            </p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-6 text-center">
+        <a href="/" class="inline-block bg-white border-2 border-black p-3 shadow-[4px_4px_0px_#000] transform -rotate-3 hover:rotate-0 transition-transform">
+            <span class="font-tag text-2xl leading-none hover:text-cyan-600">RESKO<span class="text-xs font-sans block tracking-widest text-gray-500">_CMA</span></span>
+        </a>
+    </footer>
+
+</body>
+</html>
