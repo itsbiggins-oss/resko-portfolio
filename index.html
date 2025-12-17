@@ -243,9 +243,6 @@
             .filter-scroll-container::-webkit-scrollbar { display: none; }
             .filter-scroll-container > div { flex-wrap: nowrap; }
             .shadow-mobile-reduce { box-shadow: 6px 6px 0px #171717 !important; }
-            .project-card { transform: none !important; }
-            .project-card:hover { transform: none !important; }
-            .project-card::before { display: none; }
         }
 
         @media (hover: none) and (pointer: coarse) {
@@ -328,7 +325,7 @@
                 <div class="absolute -top-4 left-8 w-20 h-6 bg-orange-400/40 transform -rotate-6 z-20" aria-hidden="true"></div>
                 <div class="absolute -top-3 right-12 w-16 h-6 bg-cyan-400/40 transform rotate-3 z-20" aria-hidden="true"></div>
                 
-                <div class="bg-white border-2 border-black p-3 md:p-4 shadow-[6px_6px_0px_#171717] sm:shadow-[10px_10px_0px_#171717] transform sm:rotate-1 sm:hover:rotate-0 transition-transform duration-300">
+                <div class="bg-white border-2 border-black p-3 md:p-4 shadow-[6px_6px_0px_#171717] sm:shadow-[10px_10px_0px_#171717] transform rotate-1 hover:rotate-0 transition-transform duration-300">
                     <div class="video-wrapper">
                         <iframe src="https://drive.google.com/file/d/1mUGS24zZdF7iULJWgCfNB5M2n-b8dKyb/preview" allow="autoplay; encrypted-media" allowfullscreen title="Resko Artist Story" loading="lazy"></iframe>
                     </div>
